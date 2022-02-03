@@ -37,6 +37,10 @@ func NewClient(orgSlug string, apiToken string, userAgent string) *Client {
 		Transport: authTransport,
 	}))
 
+	graphQlClient.Log = func(responseBody string) {
+		log.Printf("[TRACE] Response body:\n%s", responseBody)
+	}
+
 	return &Client{
 		client: &http.Client{
 			Transport: authTransport,
