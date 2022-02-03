@@ -33,13 +33,19 @@ func NewClient(orgSlug string, apiToken string, userAgent string) *Client {
 	var authTransport http.RoundTripper = NewAuthTransport(apiToken, userAgent, nil)
 	baseURL, _ := url.Parse(defaultBaseURL)
 
+	graphQlClient := graphql.NewClient(defaultGraphQLUrl, graphql.WithHTTPClient(&http.Client{
+		Transport: authTransport,
+	}))
+
+	graphQlClient.Log = func(responseBody string) {
+		log.Printf("[TRACE] Response body:\n%s", responseBody)
+	}
+
 	return &Client{
 		client: &http.Client{
 			Transport: authTransport,
 		},
-		graphQl: graphql.NewClient(defaultGraphQLUrl, graphql.WithHTTPClient(&http.Client{
-			Transport: authTransport,
-		})),
+		graphQl:  graphQlClient,
 		baseURL:  baseURL,
 		orgSlug:  orgSlug,
 		apiToken: apiToken,
